@@ -1,65 +1,57 @@
-# Understanding the graphs
+## Understanding the Graphs 🚨
 
-> :warning: *This section is a W.I.P. and needs more review!* :warning:
+> :warning: Yo, this section is a *W.I.P.* — don’t judge me too hard, I still gotta tweak some stuff! 🫣 :warning:
 
-This section will explain to you what most of the default RLGym-PPO metric graphs mean, and how to interpret them.
+So, I’m gonna break down what these graphs mean in RLGym-PPO, and how you should be reading ‘em. This ain’t no boring lecture, I’ll keep it real with you.
 
-By default, RLGym-PPO logs metrics with wandb. If you have wandb enabled, you can view them at your bot's wandb link, which is posted in the console when you start a training session.
+By default, RLGym-PPO logs all the metrics with wandb. If you're vibin’ with wandb, just hit up your bot’s wandb link — it's in the console once you fire up a training sesh.
 
-Note that I will purposefully not elaborate on some of the more complicated stuff. I may add optional more-detailed explanations in the future.
+Heads up: I’m not gonna dive into every little detail on the trickier graphs for now. Maybe in the future I’ll throw in some deep dives if you're really trying to go full-on genius mode.
 
-## *Remember: Watch your bot!*
+## Big Tip: Watch Your Bot in Action!
 
-Unless you have an ELO-tracking system (where different versions of your bot are versed against each other to determine skill), no graph is going to be as good as of an indicator of progress as watching your bot play.
+Unless you're tracking your bot's ELO (you know, where different versions of your bot go head-to-head to flex on each other), no graph’s gonna tell you more than just watching your bot in action. Period.
 
-You shouldn't use vague graphs (like policy reward) to come to vague conclusions. Obsessing over weird changes and patterns in graphs like entropy or clip fraction will drive you insane and just waste your time. Totally normal learning often results in weird cyclic behavior in some graphs. Sometimes graphs suddenly shift for seemingly no reason at all.
+Don’t stress about vague graphs (like the policy reward). Those don’t tell the full story. Freaking out about entropy spikes or clip fraction will just give you a headache. Trust me, graphs like these sometimes do some weird back-and-forth and it’s totally chill. Bots gotta learn, they gon’ make mistakes.
 
-However, if a general graph completely dies or skyrockets to an insane value, something *is* probably broken. Just don't solely rely on the graphs to determine if there is a problem unless it's very obvious.
+But, if you see a graph that drops or rockets up randomly to some insane value — yeah, something’s off. Don’t use graphs alone to judge progress unless it’s super obvious.
 
 ## Policy Reward
 ![image](https://github.com/ZealanL/RLGym-PPO-Guide/assets/36944229/cb480e81-38c4-488e-9b2a-f563257ef7ca)
 
-This graph shows the average of the total reward each player gets, per episode.
+Ayy, this graph shows the average reward your bot gets per episode. Early on, you’ll see it rise fast, but don’t trip if it starts to plateau or dip.
 
-This should increase a lot in the early stages, HOWEVER, please DO NOT assume that a decrease or plateau in this graph means your bot is not improving.
+The reward is linked to the episode’s length. In the early stages, your bot is probably ending its episodes due to timeouts, so episodes are long. But as soon as your bot starts getting those hits in, goal-scoring becomes the main episode-ender. So, shorter episodes = lower policy reward, simple as that.
 
-The average episode reward is directly scaled by the length of each episode. 
-At the beginning stages, your episodes are probably ending due to the timeout condition, so the average episode duration will increase if your bot starts hitting the ball.
-However, as your bot starts hitting the ball, the goal-scored condition will become the primary episode-ender. Therefore, the more often your bot is scoring, the shorter the episodes, and the lower the "policy reward".
+From my experience? Early on, this graph will spike up like crazy. Then, once your bot starts smacking the ball around, it’ll flatten out or dip as goal-scoring gets the spotlight.
 
-From my experience, this graph will increase very strongly at the early stages of learning.
-Then, once the bot can hit the ball frequently, it will begin to flatten out or decrease, as goal scoring becomes prominent.
-
-Note that if you are using zero-sum rewards, this graph is basically useless, as the average total zero-sum reward over any period of time is just going to be zero.
-However, since zero-sum rewards are not helpful when the bots can't really reach the ball yet, this is still useful for tracking the progress of early learning.
+Oh, and if you're using zero-sum rewards? Yeah, this graph’s basically just white noise. Zero-sum rewards don’t mean much until your bot is actually hitting the ball. Still, it’s decent for tracking early learning vibes.
 
 ## Policy Entropy
 ![image](https://github.com/ZealanL/RLGym-PPO-Guide/assets/36944229/a3974e70-30ae-4cb2-9cf6-3fad02a09fb3)
 
-This one's pretty cool. It shows how much variety there is in the actions of your bot, on average. This graph will directly scale with `ent_coef`, as well as what situations the bot is in.
+Now this one’s low-key dope. It shows how much variety your bot has in its actions. If it’s spicing things up, this graph will tell you. The more chaotic or diverse the actions, the higher this value. It’s also linked to 'ent_coef', and like, the situation your bot finds itself in.
 
 ## Value Function Loss
 ![image](https://github.com/ZealanL/RLGym-PPO-Guide/assets/36944229/832d5b31-3bef-4551-ad8e-8dfed9d90d45)
 
-This graph shows how much the critic is struggling to predict the rewards of the policy. 
-The graph scales pretty consistently with how often event rewards (goals, demos, etc.) occur, as they are extremely difficult (and in many cases straight-up impossible) for the critic to predict in the future.
+Okay, this graph is your critic’s struggle bus. It shows how hard it is for your bot’s critic to predict the rewards based on its actions. The harder it is to predict — like, when your bot scores goals or pulls off demos — the more this graph is gonna fluctuate.
 
-It should decrease a lot at the very beginning, but then settle down to a "best guess" at some base loss, which will then fluctuate depending on what rewards your bot is getting.
+Early on, expect this to drop a ton. But after a while, it’ll settle to a kind of “best guess” point and chill out, with some slight fluctuations based on your bot’s reward patterns.
 
-You will also see this graph immediately shift if you make significant changes to your rewards.
+Also, if you change your rewards mid-training? This graph is gonna shift real quick.
 
 ## Policy Update Magnitude/Value Function Update Magnitude
 ![image](https://github.com/ZealanL/RLGym-PPO-Guide/assets/36944229/d8726d44-dd0b-42a4-92dc-c0695adb03b7)
 
-These are the scale of changes made to the policy and critic each iteration. These directly scale with learning rate, and they both tend to immediately spike or shift with significant reward changes.
+These graphs show how much your bot’s policy and critic change with every iteration. If the learning rate is too hot, these will spike like crazy. You’ll see shifts if you mess with the rewards too much too — so keep that in mind.
 
 ## SB3 Clip Fraction/Mean KL Divergence
 ![image](https://github.com/ZealanL/RLGym-PPO-Guide/assets/36944229/ebca338e-bd0b-407a-b5cc-3f4539a54301)
 
-These scale with the change in the policy each iteration (see "Policy Update Magnitude"). 
-Many bot creators will adjust learning rate to keep one of these graphs near a certain value (I usually see people targeting ~0.08 as their clip fraction).
+These graphs track how much the policy changes from one iteration to the next. People usually target a specific value here — like ~0.08 for clip fraction, to keep things balanced.
 
-### *TODO: Add more graphs!*
+### *To-Do: I’ll add more graphs soon! Stay tuned!* 👀
 
 _____
 [Back to Table of Contents](README.md)
